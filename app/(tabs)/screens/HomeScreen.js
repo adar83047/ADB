@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 import { Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,14 +9,35 @@ const images = [
   require('../../../assets/images/chicken.png'),
   require('../../../assets/images/pizza.png'),
   require('../../../assets/images/soup.png'),
+  require('../../../assets/images/Tandoori Chicken.jpg'),
+  require('../../../assets/images/Grilled Chicken Burger.jpg'),
+  require('../../../assets/images/Black Pepper Steak.jpg'),
+  require('../../../assets/images/Chicken Mandi.jpg'),
+  require('../../../assets/images/Chicken Steak.jpg'),
+  require('../../../assets/images/Pepperoni Pizza.jpg'),
 ];
-const width = 150;
-
+const width = 250;
 export default function HomeScreen() {
-  const scrollViewRef = useRef<ScrollView>(null);
+  const router = useRouter();
+  const scrollViewRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex(prevIndex => {
+        const nextIndex = (prevIndex + 1) % images.length;
+        if (scrollViewRef.current) {
+          scrollViewRef.current.scrollTo({ x: width * nextIndex, animated: true });
+        }
+        return nextIndex;
+      });
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
 
 
   return (
+
     <>
     <StatusBar barStyle="light-content" backgroundColor="#21150d" />
 
@@ -25,59 +47,59 @@ export default function HomeScreen() {
         <Text style = {styles.Text}>Dawat Dost!!!</Text>
         <Image source={require('../../../assets/images/logo.jpg')} style={styles.image} />
       </View>
-              <View style={styles.BannerContainer}>
+              <View style={[styles.BannerContainer, { width,height:200, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }]}> 
           <ScrollView
             ref={scrollViewRef}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             scrollEnabled
+            snapToInterval={width}
+            decelerationRate="fast"
+            style={{ width}}
+            contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}
+            onMomentumScrollEnd={e => {
+              const newIndex = Math.round(e.nativeEvent.contentOffset.x / width);
+              setCurrentIndex(newIndex);
+            }}
           >
             {images.map((image, index) => (
               <Image
                 key={index}
                 source={image}
-                style={{ width: 200, height: 120 ,borderRadius: 20, margin: 10 }}
+                style={{ width: width, height: 150, borderRadius: 20, margin: 0 }}
+                resizeMode="cover"
               />
             ))}
           </ScrollView>
               </View>
-
               <View style={styles.dot}>
               <Text style={styles.Text2}> Food Categories </Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/(tabs)/screens/Viewall')}>
               <Text style={styles.viewall}> View All </Text>
               </TouchableOpacity>
               </View>
 
 
-          <TouchableOpacity>
-            <View style={styles.category}>
+          <TouchableOpacity style={styles.category} onPress={() => router.push('/(tabs)/screens/Soups')}>
               <Image source={require('../../../assets/images/soup.png')} style={styles.cateImg}/>
               <Text style={styles.cateText}>Soups</Text>
               <Image source={require('../../../assets/images/arrow.png')} style={styles.cateImgV}/>
-            </View>
           </TouchableOpacity>
-          <TouchableOpacity>
-            <View style={styles.category}>
+          <TouchableOpacity style={styles.category} onPress={() => router.push('/(tabs)/screens/Burgers')}>
               <Image source={require('../../../assets/images/burger.png')} style={styles.cateImg}/>
               <Text style={styles.cateText}>Burgers</Text>
               <Image source={require('../../../assets/images/arrow.png')} style={styles.cateImgV}/>
-            </View>
           </TouchableOpacity>
-          <TouchableOpacity>
-            <View style={styles.category}>
+          <TouchableOpacity style={styles.category} onPress={() => router.push('/(tabs)/screens/Chikens')}>
               <Image source={require('../../../assets/images/chicken.png')} style={styles.cateImg}/>
               <Text style={styles.cateText}>Chicken</Text>
               <Image source={require('../../../assets/images/arrow.png')} style={styles.cateImgV}/>
-            </View>
           </TouchableOpacity>
-          <TouchableOpacity>
-            <View style={styles.category}>
+          <TouchableOpacity style={styles.category} onPress={() => router.push('/(tabs)/screens/Pizzas')}>
               <Image source={require('../../../assets/images/pizza.png')} style={styles.cateImg}/>
               <Text style={styles.cateText}>Pizzas</Text>
               <Image source={require('../../../assets/images/arrow.png')} style={styles.cateImgV}/>
-            </View>
           </TouchableOpacity>
             <View style={styles.empty}></View>
 
@@ -88,19 +110,22 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  category:{
+  category: {
     top: 40,
-    height:100,
+    height: 100,
     width: '80%',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor:'white',
-    alignSelf:'center',
+    backgroundColor: '#CA7842',
+    alignSelf: 'center',
     borderRadius: 20,
-    
-    padding:5,
-    margin:10,
-    
+    padding: 5,
+    margin: 20,
+
+    shadowColor: '#FF810D',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
   },
   dot:{
     top: 30,
@@ -133,8 +158,8 @@ const styles = StyleSheet.create({
    BannerContainer: {
     top: 20,
     height: 150,
-    width: '80%',
-    alignSelf:'center'
+    alignSelf: 'center',
+    overflow: 'hidden',
   },
   header:{
     backgroundColor: '#21150d',
